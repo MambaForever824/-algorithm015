@@ -1,0 +1,60 @@
+1、Queue源码分析
+1-1、Queue
+Queue接口类，可以作为FIFO(先入先出)队列实现；
+在FIFO的实现中，新元素插入都在队尾（tail）;
+存入Queue的元素，也可以实现Comparator接口类，按【优先级】实现出队和入队；
+无论以何种方式实现，队头元素（head）都是调用 remove() 或者 poll() 方法 移除的元素；
+
+继承自 Collection
+实现类有
+(1) java.util.LinkedList, 内部是【双向链表（Doubly-linked）】的队列 , 非线程安全；
+(2) java.util.PriorityQueue，无界的【优先级】队列，其中元素的优先级根据通常根据自然顺序（如数字），也可以通过实现Comparator的compare方法实现；
+(3) java.util.concurrent.LinkedBlockingQueue，先进先出，链表实现的【阻塞(线程安全)】队列，链表最大长度为Integer.MAX_VALUE;
+(4) java.util.concurrent.BlockingQueue，线程安全的阻塞队列
+(5) java.util.concurrent.ArrayBlockingQueue，先进先出，有界的，数组，线程安全 队列；
+(6) java.util.concurrent.PriorityBlockingQueue，带有【优先级】的 线程安全队列
+
+1-2、方法
+Queue主要包括 入队，出队，获取队首元素 等操作；
+
+1-3、入队操作
+1-3-1、add(E)
+A.继承自Collection接口类
+B.方法描述
+boolean add (E e)
+参数: E，代表插入的元素；
+返回值: boolean 类型，插入成功返回true；这个方法有严格的限制要求，队列容量已满，则抛出异常；
+异常定义:
+(1) IllegalStateException，如果插入时【队列已满】，抛出此异常；
+(2) ClassCastException，插入的类型不属于队列中的元素；
+(3) NullPointerException，如果插入的元素为null，并且队列中不允许存放null值；
+(4) IllegalArgumentException，插入的元素不合法；
+
+1-3-2、offer(E e)
+方法描述：boolean offer(E e)
+当队列没有限制条件时，允许插入值；
+返回值: boolean 类型，插入成功返回true，没有严格限制要求，队列满时返回false；
+在有容量限制的队列，offer方法可以调用add(E e)方法，并且抛出异常；
+异常定义：
+(1) ClassCastException，插入的类型不属于队列中的元素；
+(2) NullPointerException，如果插入的元素为null，并且队列中不允许存放null值；
+(3) IllegalArgumentException，插入的元素不合法；
+
+1-4、出队操作
+1-4-1、remove()
+方法描述：E remove()
+【检索】并【移除】队首元素，【队列为空】抛出NoSuchElementException异常
+
+1-4-2、poll()
+方法描述：E poll()
+【检索】并【移除】队首元素，【队列为空】时不抛出异常，一般实现返回null
+
+1-5、检索操作
+1-5-1、element()
+【检索retrieve】【队首head】元素，如果【队列为空】抛出NoSuchElementException异常
+
+1-5-2、peek()
+【检索retrieve】【队首head】元素，【队列为空】时返回null;
+
+
+2、PriorityQueue源码分析
