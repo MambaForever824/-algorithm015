@@ -58,3 +58,107 @@ boolean add (E e)
 
 
 2、PriorityQueue源码分析
+2-1、概念
+(1) PriorityQueue是一个优先级的有界队列；
+(2) 优先级队列中的元素是按照元素的自然序列或者通过实现Comparator接口进行排序；
+(3) 队列不能存放为null的元素；
+(4) 基于自然顺序的优先级队列，不需要插入non-comparable的对象，Java中的comparable接口包括 Integer,Long等；
+(5) 队列的头元素是按照元素顺序排列的最新元素；
+(6) PriorityQueue不是一个线程安全的队列，PriorityBlockingQueue是线程安全的队列；
+
+2-2、构造函数
+(1) 默认构造函数，public PriorityQueue()，初始化深度为11，最大长度为 Integer.MAX_VALUE - 8；
+(2) PriorityQueue(int initialCapacity)，创建一个指定容量的队列；
+(3) PriorityQueue(Comparator<? super E> comparator)，重写Comparator的优先队列，容量大小为11；
+(4) PriorityQueue(int initialCapacity, Comparator<? super E> comparator)；
+(5) PriorityQueue(Collection<? extends E> c), 创建一个包含指定集合的PriorityQueue，
+    如果指定的集合是SortedSet或者PriorityQueue，则根据指定顺序进行排序；否则根据集合中的自然序列进行排序；
+(6) PriorityQueue(PriorityQueue<? extends E> c);
+(7) PriorityQueue(SortedSet<? extends E> c)
+
+2-3、具体实现
+(1) Java实现PriorityQueue，内部的元素使用数组进行存储，Object[] queue;
+(2) Java的实现是一个平衡二叉堆（as a balanced binary heap）；
+(3) 当队列需要扩容时，扩容长度为原来长度的一半；
+    int newCapacity = oldCapacity + ((oldCapacity < 64) ? (oldCapacity + 2) : (oldCapacity >> 1));
+
+2-4、入队方法
+(1) add(E e)，方法返回boolean，调用offer(E e)方法，
+    异常处理：
+    如果元素为空，抛出NullPointerException；
+    如果入队的元素不能被当前队列的排序元素比较，抛出ClassCastException；
+(2) offer(E e)，方法返回值为boolean，
+    时间复杂度为O(N)，N为数组长度；
+    Java的源码如下：
+    public boolean offer(E e) {
+        if (e == null)
+            // 元素为null，抛出NPE异常
+            throw new NullPointerException();
+        // modCount代表队列修改的次数
+        modCount++;
+        int i = size;
+        // 如果当前队列元素的数量 > 队列深度，则进行扩容
+        if (i >= queue.length)
+            grow(i + 1);
+        size = i + 1;
+        if (i == 0)
+            // 队列为空时，直接插入数组的首位
+            queue[0] = e;
+        else
+            siftUp(i, e);
+        // 入队成功返回
+        return true;
+    }
+(3) 关于siftUp方法
+    private void siftUp(int k, E x) {
+        if (comparator != null)
+            // 如果构造函数实现Comparator调用siftUpUsingComparator
+            // 具体需要实现Comparator的compare方法，元素通过compare方法比较
+            siftUpUsingComparator(k, x);
+        else
+            siftUpComparable(k, x);
+    }
+
+    private void siftUpUsingComparator(int k, E x) {
+        while (k > 0) {
+            int parent = (k - 1) >>> 1;
+            Object e = queue[parent];
+            // 调用Comparator的compare方法，如果元素比较大于等于0，则插入数组最后
+            if (comparator.compare(x, (E) e) >= 0)
+                break;
+            queue[k] = e;
+            k = parent;
+        }
+        queue[k] = x;
+    }
+
+    private void siftUpComparable(int k, E x) {
+        Comparable<? super E> key = (Comparable<? super E>) x;
+        while (k > 0) {
+            int parent = (k - 1) >>> 1;
+            Object e = queue[parent];
+            if (key.compareTo((E) e) >= 0)
+                break;
+            queue[k] = e;
+            k = parent;
+        }
+        queue[k] = key;
+   }
+
+2-5、队列检索元素peek()
+这个方法就是将队列头，也就是数组中下标为0的元素移除，时间复杂度O(1);
+
+2-6、队列元素移除
+方法：remove(Object o)
+时间复杂度O(N)，需要遍历数组进行元素比较，
+方法返回值类型为boolean，如果元素存在返回true，元素不存在返回false;
+public boolean remove(Object o) {
+    int i = indexOf(o);
+    // 元素不存在，返回false
+    if (i == -1)
+        return false;
+    else {
+        removeAt(i);
+        return true;
+    }
+}
